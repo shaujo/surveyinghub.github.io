@@ -330,6 +330,7 @@ summary::-webkit-details-marker {
     cursor: grab;
     display: block;
     transition: box-shadow 0.3s ease;
+    touch-action: none; /* let JS handle pan/zoom instead of the browser scrolling/zooming the page */
 }
 
 .canvas-mock:active {
@@ -446,6 +447,7 @@ summary::-webkit-details-marker {
 
 .delete-row-btn {
     height: 38px;
+    min-width: 38px;
     background-color: #FFE4E6;
     color: #E11D48;
     border: 1px solid #FECDD3;
@@ -479,7 +481,8 @@ summary::-webkit-details-marker {
 }
 
 .add-point-btn {
-    height: 42px;
+    height: 44px;
+    min-height: 44px; /* comfortable tap target on touch devices */
     background-color: #FFFFFF;
     color: #343F85;
     border: 2px solid #343F85;
@@ -502,7 +505,8 @@ summary::-webkit-details-marker {
 }
 
 .calculate-action-btn, .compute-box-btn {
-    height: 42px;
+    height: 44px;
+    min-height: 44px; /* comfortable tap target on touch devices */
     background-color: #FCD34D;
     color: #343F85;
     border: none;
@@ -530,7 +534,6 @@ summary::-webkit-details-marker {
 .compute-box-btn {
     width: 100%;
     margin-top: 10px;
-    height: 44px;
 }
 
 .calculators-section-wrapper {
@@ -573,7 +576,7 @@ summary::-webkit-details-marker {
 }
 
 .calc-select {
-    height: 40px;
+    height: 44px; /* comfortable tap target */
     border: 1px solid #CBD5E1;
     border-radius: 8px;
     padding: 0 10px;
@@ -604,7 +607,8 @@ summary::-webkit-details-marker {
     gap: 6px;
 }
 
-.calc-input-group span {
+.calc-input-group span,
+.calc-input-group label {
     font-family: Arial, sans-serif;
     font-size: 13px;
     color: #475569;
@@ -822,6 +826,18 @@ summary::-webkit-details-marker {
     }
 }
 
+/* Respect users who've asked for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .animate-up {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    html, body {
+        scroll-behavior: auto;
+    }
+}
+
 @media (max-width: 992px) {
     .header {
         flex-direction: column;     
@@ -838,8 +854,16 @@ summary::-webkit-details-marker {
         gap: 40px;
     }
     
-    .analyzer-section-wrapper, .analyzer-workspace, .calculators-section-wrapper {
+    .analyzer-section-wrapper, .analyzer-workspace {
         flex-direction: column;
+        width: 100%;
+    }
+
+    /* This is a grid container, not a flex container — flex-direction has no
+       effect here. Switch it to a single column so the two calculators
+       actually stack instead of squeezing side by side. */
+    .calculators-section-wrapper {
+        grid-template-columns: 1fr;
         width: 100%;
     }
 
@@ -861,5 +885,62 @@ summary::-webkit-details-marker {
     
     .coordinate-rows-container {
         padding-right: 0;
+    }
+}
+
+/* Extra breakpoint for small phones so headings/padding don't feel cramped */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 40px 16px;
+    }
+
+    .welcome-title {
+        font-size: 32px;
+    }
+
+    .welcome-text {
+        font-size: 16px;
+    }
+
+    .title {
+        font-size: 28px;
+    }
+
+    .description-title {
+        font-size: 24px;
+    }
+
+    .description-text {
+        font-size: 16px;
+    }
+
+    .card-feature, .calc-box, .control-panel, .results-panel, .canvas-container {
+        padding: 18px;
+    }
+
+    .feature-main-title {
+        font-size: 28px;
+    }
+
+    .workspace-main-title {
+        font-size: 24px;
+    }
+
+    .coord-row-header {
+        font-size: 11px;
+        gap: 6px;
+    }
+
+    .coord-input-row {
+        gap: 6px;
+    }
+
+    .coord-field {
+        font-size: 13px;
+        padding: 0 8px;
+    }
+
+    .canvas-hint {
+        display: none; /* not enough room, and touch users don't scroll to zoom anyway */
     }
 }
