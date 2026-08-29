@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDragging = false;
     let startX, startY;
 
+    // Track active pointers for pinch-to-zoom support on touch devices
+    const activePointers = new Map();
+    let pinchStartDistance = null;
+    let pinchStartScale = null;
+    let pinchStartMidpoint = null;
+
     function resizeCanvas() {
         const oldWidth = canvas.width;
         const oldHeight = canvas.height;
@@ -78,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
             row.querySelector('.point-index').textContent = `P${idx + 1}`;
             const delBtn = row.querySelector('.delete-row-btn');
             delBtn.disabled = rows.length <= 3;
+            delBtn.setAttribute('aria-label', `Delete point ${idx + 1}`);
+            row.querySelector('.coord-x').setAttribute('aria-label', `Point ${idx + 1} X value`);
+            row.querySelector('.coord-y').setAttribute('aria-label', `Point ${idx + 1} Y value`);
         });
     }
 
@@ -228,22 +237,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calculateBtn.addEventListener('click', processLotCalculations);
 
-    canvas.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX - offsetX;
-        startY = e.clientY - offsetY;
+    // ---- Pan & zoom via Pointer Events (works for mouse, touch, and pen) ----
+
+    function getCanvasRelativePoint(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+
+    function getPinchDistanceAndMidpoint() {
+        const pts = Array.from(activePointers.values());
+        const dx = pts[0].x - pts[1].x;
+        const dy = pts[0].y - pts[1].y;
+        return {
+            distance: Math.sqrt(dx * dx + dy * dy),
+            midpoint: {
+                x: (pts[0].x + pts[1].x) / 2,
+                y: (pts[0].y + pts[1].y) / 2
+            }
+        };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+        canvas.setPointerCapture(e.pointerId);
+        activePointers.set(e.pointerId, getCanvasRelativePoint(e));
+
+        if (activePointers.size === 1) {
+            isDragging = true;
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
+        } else if (activePointers.size === 2) {
+            // Starting a pinch gesture — stop single-finger panning
+            isDragging = false;
+            const { distance, midpoint } = getPinchDistanceAndMidpoint();
+            pinchStartDistance = distance;
+            pinchStartScale = scale;
+            pinchStartMidpoint = midpoint;
+        }
     });
 
-    window.addEventListener('mouseup', () => { isDragging = false; });
+    function endPointer(e) {
+        activePointers.delete(e.pointerId);
+        if (activePointers.size < 2) {
+            pinchStartDistance = null;
+        }
+        if (activePointers.size === 0) {
+            isDragging = false;
+        } else if (activePointers.size === 1) {
+            // Dropped back to one finger — resume panning from here
+            const remaining = Array.from(activePointers.values())[0];
+            const rect = canvas.getBoundingClientRect();
+            isDragging = true;
+            startX = (remaining.x + rect.left) - offsetX;
+            startY = (remaining.y + rect.top) - offsetY;
+        }
+    }
 
-    canvas.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        offsetX = e.clientX - startX;
-        offsetY = e.clientY - startY;
-        const points = getPoints();
-        drawLotPolygon(points);
+    canvas.addEventListener('pointerup', endPointer);
+    canvas.addEventListener('pointercancel', endPointer);
+    canvas.addEventListener('pointerleave', (e) => {
+        if (activePointers.has(e.pointerId)) endPointer(e);
     });
 
+    canvas.addEventListener('pointermove', (e) => {
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.set(e.pointerId, getCanvasRelativePoint(e));
+
+        if (activePointers.size === 2 && pinchStartDistance) {
+            // Pinch-to-zoom
+            const { distance, midpoint } = getPinchDistanceAndMidpoint();
+            const rawScale = pinchStartScale * (distance / pinchStartDistance);
+            const newScale = Math.min(Math.max(rawScale, 0.5), 50);
+
+            const mathX = (pinchStartMidpoint.x - offsetX) / scale;
+            const mathY = (offsetY - pinchStartMidpoint.y) / scale;
+
+            scale = newScale;
+            offsetX = midpoint.x - (mathX * scale);
+            offsetY = midpoint.y + (mathY * scale);
+
+            drawLotPolygon(getPoints());
+            return;
+        }
+
+        if (isDragging && activePointers.size === 1) {
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+            drawLotPolygon(getPoints());
+        }
+    });
+
+    // Mouse wheel zoom (desktop trackpads/mice)
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         const zoomFactor = 1.1;
@@ -285,38 +371,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const lblVolumeUnit = document.getElementById('lblVolumeUnit');
 
     const areaFields = {
-        square: ['<span>Side Value (m)</span><input type="number" id="side" class="coord-field" value="0">'],
+        square: ['<label for="side">Side Value (m)</label><input type="number" id="side" class="coord-field" value="0">'],
         rectangle: [
-            '<span>Length Value (m)</span><input type="number" id="length" class="coord-field" value="0">',
-            '<span>Width Value (m)</span><input type="number" id="width" class="coord-field" value="0">'
+            '<label for="length">Length Value (m)</label><input type="number" id="length" class="coord-field" value="0">',
+            '<label for="width">Width Value (m)</label><input type="number" id="width" class="coord-field" value="0">'
         ],
-        circle: ['<span>Radius Value (m)</span><input type="number" id="radius" class="coord-field" value="0">'],
+        circle: ['<label for="radius">Radius Value (m)</label><input type="number" id="radius" class="coord-field" value="0">'],
         triangle: [
-            '<span>Base Value (m)</span><input type="number" id="base" class="coord-field" value="0">',
-            '<span>Height Value (m)</span><input type="number" id="height" class="coord-field" value="0">'
+            '<label for="base">Base Value (m)</label><input type="number" id="base" class="coord-field" value="0">',
+            '<label for="height">Height Value (m)</label><input type="number" id="height" class="coord-field" value="0">'
         ],
         trapezoid: [
-            '<span>Base A Value (m)</span><input type="number" id="baseA" class="coord-field" value="0">',
-            '<span>Base B Value (m)</span><input type="number" id="baseB" class="coord-field" value="0">',
-            '<span>Vertical Height (m)</span><input type="number" id="trapHeight" class="coord-field" value="0">'
+            '<label for="baseA">Base A Value (m)</label><input type="number" id="baseA" class="coord-field" value="0">',
+            '<label for="baseB">Base B Value (m)</label><input type="number" id="baseB" class="coord-field" value="0">',
+            '<label for="trapHeight">Vertical Height (m)</label><input type="number" id="trapHeight" class="coord-field" value="0">'
         ]
     };
 
     const volumeFields = {
-        cube: ['<span>Edge Value (m)</span><input type="number" id="edge" class="coord-field" value="0">'],
+        cube: ['<label for="edge">Edge Value (m)</label><input type="number" id="edge" class="coord-field" value="0">'],
         prism: [
-            '<span>Length Value (m)</span><input type="number" id="prismLength" class="coord-field" value="0">',
-            '<span>Width Value (m)</span><input type="number" id="prismWidth" class="coord-field" value="0">',
-            '<span>Height Value (m)</span><input type="number" id="prismHeight" class="coord-field" value="0">'
+            '<label for="prismLength">Length Value (m)</label><input type="number" id="prismLength" class="coord-field" value="0">',
+            '<label for="prismWidth">Width Value (m)</label><input type="number" id="prismWidth" class="coord-field" value="0">',
+            '<label for="prismHeight">Height Value (m)</label><input type="number" id="prismHeight" class="coord-field" value="0">'
         ],
         cylinder: [
-            '<span>Radius Value (m)</span><input type="number" id="cylRadius" class="coord-field" value="0">',
-            '<span>Height Value (m)</span><input type="number" id="cylHeight" class="coord-field" value="0">'
+            '<label for="cylRadius">Radius Value (m)</label><input type="number" id="cylRadius" class="coord-field" value="0">',
+            '<label for="cylHeight">Height Value (m)</label><input type="number" id="cylHeight" class="coord-field" value="0">'
         ],
-        sphere: ['<span>Radius Value (m)</span><input type="number" id="sphRadius" class="coord-field" value="0">'],
+        sphere: ['<label for="sphRadius">Radius Value (m)</label><input type="number" id="sphRadius" class="coord-field" value="0">'],
         cone: [
-            '<span>Radius Value (m)</span><input type="number" id="coneRadius" class="coord-field" value="0">',
-            '<span>Height Value (m)</span><input type="number" id="coneHeight" class="coord-field" value="0">'
+            '<label for="coneRadius">Radius Value (m)</label><input type="number" id="coneRadius" class="coord-field" value="0">',
+            '<label for="coneHeight">Height Value (m)</label><input type="number" id="coneHeight" class="coord-field" value="0">'
         ]
     };
 
