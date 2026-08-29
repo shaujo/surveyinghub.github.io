@@ -8,9 +8,7 @@ html, body {
     padding: 0;
     scroll-behavior: smooth;
     max-width: 100%;
-    overflow-x: hidden; /* set on BOTH html and body — body alone isn't
-                            always enough to stop sideways scrolling on iOS-based
-                            in-app browsers (e.g. Messenger, Instagram) */
+    overflow-x: hidden; 
 }
 
 body {
@@ -69,8 +67,6 @@ img {
 .title {
     color: #343F85;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    /* clamp(min, preferred, max): never smaller than 28px, never bigger than
-       50px, and scales smoothly with viewport width in between */
     font-size: clamp(1.75rem, 5vw + 0.5rem, 3.125rem);
     font-weight: 800;
     line-height: 1.1;
@@ -345,7 +341,7 @@ summary::-webkit-details-marker {
     cursor: grab;
     display: block;
     transition: box-shadow 0.3s ease;
-    touch-action: none; /* let JS handle pan/zoom instead of the browser scrolling/zooming the page */
+    touch-action: none;
 }
 
 .canvas-mock:active {
@@ -447,7 +443,7 @@ summary::-webkit-details-marker {
     padding: 0 12px;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
-    font-size: 16px; /* 16px+ stops iOS Safari from auto-zooming the page on focus */
+    font-size: 16px;
     color: #334155;
     background-color: #F8FAFC;
     transition: all 0.2s ease;
@@ -497,7 +493,7 @@ summary::-webkit-details-marker {
 
 .add-point-btn {
     height: 44px;
-    min-height: 44px; /* comfortable tap target on touch devices */
+    min-height: 44px;
     background-color: #FFFFFF;
     color: #343F85;
     border: 2px solid #343F85;
@@ -521,7 +517,7 @@ summary::-webkit-details-marker {
 
 .calculate-action-btn, .compute-box-btn {
     height: 44px;
-    min-height: 44px; /* comfortable tap target on touch devices */
+    min-height: 44px; 
     background-color: #FCD34D;
     color: #343F85;
     border: none;
@@ -591,12 +587,12 @@ summary::-webkit-details-marker {
 }
 
 .calc-select {
-    height: 44px; /* comfortable tap target */
+    height: 44px; 
     border: 1px solid #CBD5E1;
     border-radius: 8px;
     padding: 0 10px;
     font-family: Arial, sans-serif;
-    font-size: 16px; /* 16px+ stops iOS Safari from auto-zooming the page on focus */
+    font-size: 16px;
     color: #334155;
     background-color: #F8FAFC;
     outline: none;
@@ -726,9 +722,10 @@ summary::-webkit-details-marker {
 .footer-main {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;                
     justify-content: space-between; 
     align-items: center;        
-    gap: 50px;                      
+    gap: 30px 50px;                      
     max-width: 1200px;              
     margin: 0 auto;                 
 }
@@ -737,21 +734,24 @@ summary::-webkit-details-marker {
     display: flex;
     align-items: center;
     gap: 20px;
-    width: 35%;                     
+    flex: 1 1 260px;                
+    min-width: 0;                  
 }
 
 .footer-title {
     color: #343F85;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, sans-serif;
-    font-size: clamp(1.75rem, 3vw + 1rem, 2.625rem);
+    font-size: clamp(1.5rem, 2vw + 0.75rem, 2.125rem);
     font-weight: 800;
     line-height: 0.95;
     text-transform: uppercase;
     margin: 0;
+    overflow-wrap: break-word;     
 }
 
 .about-prog {
-    width: 30%;                     
+    flex: 1 1 220px;
+    min-width: 0;                     
 }
 
 .footer-about {
@@ -770,7 +770,8 @@ summary::-webkit-details-marker {
 }
 
 .contact-section {
-    width: 35%;
+    flex: 1 1 220px;
+    min-width: 0;
 }
 
 .contact {
@@ -841,7 +842,6 @@ summary::-webkit-details-marker {
     }
 }
 
-/* Respect users who've asked for reduced motion */
 @media (prefers-reduced-motion: reduce) {
     .animate-up {
         animation: none;
@@ -870,9 +870,6 @@ summary::-webkit-details-marker {
         width: 100%;
     }
 
-    /* This is a grid container, not a flex container — flex-direction has no
-       effect here. Switch it to a single column so the two calculators
-       actually stack instead of squeezing side by side. */
     .calculators-section-wrapper {
         grid-template-columns: 1fr;
         width: 100%;
@@ -899,7 +896,6 @@ summary::-webkit-details-marker {
     }
 }
 
-/* Extra breakpoint for small phones so headings/padding don't feel cramped */
 @media (max-width: 480px) {
     .main-content {
         padding: 40px 16px;
@@ -924,6 +920,6 @@ summary::-webkit-details-marker {
     }
 
     .canvas-hint {
-        display: none; /* not enough room, and touch users don't scroll to zoom anyway */
+        display: none;
     }
 }
