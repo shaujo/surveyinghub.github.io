@@ -1,15 +1,27 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: hidden; /* set on BOTH html and body — body alone isn't
+                            always enough to stop sideways scrolling on iOS-based
+                            in-app browsers (e.g. Messenger, Instagram) */
 }
 
 body {
     background-color: #343F85; 
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 .content-wrapper {
