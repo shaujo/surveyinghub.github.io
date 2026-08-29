@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="author" description="Joshua Dytianquin">
-    <meta name="keyword" description="Surveying Hub">
+    <meta name="author" content="Joshua Dytianquin">
+    <meta name="description" content="Surveying Hub — an all-in-one surveying toolkit for coordinate plotting, area, volume, and unit conversion.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surveying Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -108,9 +108,9 @@
                         <div class="canvas-container">
                             <div class="canvas-header">
                                 <span><i class="fa-solid fa-compass-drafting"></i> Interactive Plotter Canvas</span>
-                                <span class="canvas-hint">Scroll to Zoom | Drag to Pan</span>
+                                <span class="canvas-hint">Scroll / Pinch to Zoom | Drag to Pan</span>
                             </div>
-                            <canvas id="plotterCanvas" class="canvas-mock"></canvas>
+                            <canvas id="plotterCanvas" class="canvas-mock" role="img" aria-label="Plotted lot polygon based on entered coordinates"></canvas>
                         </div>
                     </div>
 
@@ -118,7 +118,7 @@
                         <div class="control-panel">
                             <h2 class="panel-section-title">Coordinate Table Inputs</h2>
                             
-                            <div class="coord-row-header">
+                            <div class="coord-row-header" aria-hidden="true">
                                 <span>Point</span>
                                 <span>X Value</span>
                                 <span>Y Value</span>
@@ -128,21 +128,21 @@
                             <div id="coordinateContainer" class="coordinate-rows-container">
                                 <div class="coord-input-row">
                                     <span class="point-index">P1</span>
-                                    <input type="number" value="0" class="coord-field coord-x">
-                                    <input type="number" value="0" class="coord-field coord-y">
-                                    <button type="button" class="delete-row-btn" disabled><i class="fa-solid fa-trash-can"></i></button>
+                                    <input type="number" value="0" class="coord-field coord-x" aria-label="Point 1 X value">
+                                    <input type="number" value="0" class="coord-field coord-y" aria-label="Point 1 Y value">
+                                    <button type="button" class="delete-row-btn" aria-label="Delete point 1" disabled><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                                 <div class="coord-input-row">
                                     <span class="point-index">P2</span>
-                                    <input type="number" value="0" class="coord-field coord-x">
-                                    <input type="number" value="0" class="coord-field coord-y">
-                                    <button type="button" class="delete-row-btn" disabled><i class="fa-solid fa-trash-can"></i></button>
+                                    <input type="number" value="0" class="coord-field coord-x" aria-label="Point 2 X value">
+                                    <input type="number" value="0" class="coord-field coord-y" aria-label="Point 2 Y value">
+                                    <button type="button" class="delete-row-btn" aria-label="Delete point 2" disabled><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                                 <div class="coord-input-row">
                                     <span class="point-index">P3</span>
-                                    <input type="number" value="0" class="coord-field coord-x">
-                                    <input type="number" value="0" class="coord-field coord-y">
-                                    <button type="button" class="delete-row-btn" disabled><i class="fa-solid fa-trash-can"></i></button>
+                                    <input type="number" value="0" class="coord-field coord-x" aria-label="Point 3 X value">
+                                    <input type="number" value="0" class="coord-field coord-y" aria-label="Point 3 Y value">
+                                    <button type="button" class="delete-row-btn" aria-label="Delete point 3" disabled><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </div>
                             
@@ -180,7 +180,7 @@
                     <h2 class="workspace-main-title"><i class="fa-solid fa-vector-square"></i> Basic Area Calculator</h2>
                     <div class="calc-box">
                         <div class="selector-wrapper">
-                            <label class="input-label-tag">Select Shape</label>
+                            <label class="input-label-tag" for="areaShapeSelector">Select Shape</label>
                             <select id="areaShapeSelector" class="calc-select">
                                 <option value="square">Square</option>
                                 <option value="rectangle">Rectangle</option>
@@ -193,7 +193,7 @@
                         <div id="areaInputsContainer" class="dynamic-inputs-container"></div>
 
                         <div class="selector-wrapper">
-                            <label class="input-label-tag">Output Unit Conversion</label>
+                            <label class="input-label-tag" for="areaUnitSelector">Output Unit Conversion</label>
                             <select id="areaUnitSelector" class="calc-select">
                                 <option value="sq_m">Square Meters (sq. m)</option>
                                 <option value="sq_cm">Square Centimeters (sq. cm)</option>
@@ -219,7 +219,7 @@
                     <h2 class="workspace-main-title"><i class="fa-solid fa-cube"></i> Volume Calculator</h2>
                     <div class="calc-box">
                         <div class="selector-wrapper">
-                            <label class="input-label-tag">Select 3D Shape</label>
+                            <label class="input-label-tag" for="volumeShapeSelector">Select 3D Shape</label>
                             <select id="volumeShapeSelector" class="calc-select">
                                 <option value="cube">Cube</option>
                                 <option value="prism">Rectangular Prism</option>
@@ -232,7 +232,7 @@
                         <div id="volumeInputsContainer" class="dynamic-inputs-container"></div>
 
                         <div class="selector-wrapper">
-                            <label class="input-label-tag">Output Unit Conversion</label>
+                            <label class="input-label-tag" for="volumeUnitSelector">Output Unit Conversion</label>
                             <select id="volumeUnitSelector" class="calc-select">
                                 <option value="cu_m">Cubic Meters (cu. m)</option>
                                 <option value="cu_cm">Cubic Centimeters (cu. cm)</option>
